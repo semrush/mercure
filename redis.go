@@ -200,6 +200,7 @@ func (t *RedisTransport) subscribe(ctx context.Context, subscriber *redis.PubSub
 				if err := subscriber.Close(); err != nil {
 					t.logger.Error(err.Error())
 				}
+
 				return
 			}
 
