@@ -52,6 +52,10 @@ func NewRedisTransport(
 		Addr:     address,
 	})
 
+	if pong := client.Ping(context.Background()); pong.String() != "ping: PONG" {
+		return nil, fmt.Errorf("failed to connect to Redis: %s", pong)
+	}
+
 	return NewRedisTransportInstance(logger, client, subscribersSize, dispatcherPoolSize, redisChannel)
 }
 
