@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  GO111MODULE: "on"
+  GOTOOLCHAIN: local
 
 jobs:
   golangci:
@@ -73,8 +73,6 @@ jobs:
     name: Test
     needs: build
     runs-on: ubuntu-latest
-    env:
-      GOEXPERIMENT: nocoverageredesign
     steps:
       - name: Checkout
         uses: actions/checkout@v4
