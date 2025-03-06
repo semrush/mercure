@@ -26,6 +26,7 @@ type RedisTransport struct {
 	subscribers        *SubscriberList
 	dispatcherPoolSize int
 	dispatcher         chan SubscriberPayload
+	closing            chan any
 	closed             chan any
 	publishScript      *redis.Script
 	closedOnce         sync.Once
@@ -79,6 +80,7 @@ func NewRedisTransportInstance(
 		publishScript:      redis.NewScript(publishScript),
 		redisChannel:       redisChannel,
 		closed:             make(chan any),
+		closing:            make(chan any),
 		dispatcher:         make(chan SubscriberPayload),
 		redisSubscriberCtx: subscribeCtx,
 	}
@@ -86,10 +88,11 @@ func NewRedisTransportInstance(
 	go func() {
 		defer subscribeCancel()
 		select {
-		case <-transport.closed:
+		case <-transport.closing:
 			if err := subscriber.Close(); err != nil && err != redis.ErrClosed {
 				logger.Error(err.Error())
 			}
+		case <-transport.closed:
 		case <-subscribeCtx.Done():
 		}
 	}()
@@ -190,12 +193,13 @@ func (t *RedisTransport) Close() (err error) {
 
 			return true
 		})
-		close(t.closed)
+		close(t.closing)
 		<-t.redisSubscriberCtx.Done()
 		err = t.client.Close()
 		if err != nil {
 			t.logger.Error(fmt.Errorf("unable to close: %w", err).Error())
 		}
+		close(t.closed)
 	})
 
 	return nil
