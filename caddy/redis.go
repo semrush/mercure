@@ -15,16 +15,18 @@ func init() {
 }
 
 type Redis struct {
-	Address                      string
-	Username                     string
-	Password                     string
-	SubscribersSize              int
-	SubscribersBroadcastParallel int
+	address            string
+	username           string
+	password           string
+	subscribersSize    int
+	dispatcherPoolSize int
+	redisChannel       string
 
 	transport    *mercure.RedisTransport
 	transportKey string
 }
 
+// CaddyModule returns the Caddy module information.
 func (Redis) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
 		ID:  "http.handlers.mercure.redis",
@@ -36,6 +38,7 @@ func (r *Redis) GetTransport() mercure.Transport {
 	return r.transport
 }
 
+// Provision provisions redis configuration.
 func (r *Redis) Provision(ctx caddy.Context) error {
 	var key bytes.Buffer
 	if err := gob.NewEncoder(&key).Encode(r); err != nil {
@@ -44,7 +47,7 @@ func (r *Redis) Provision(ctx caddy.Context) error {
 	r.transportKey = key.String()
 
 	destructor, _, err := TransportUsagePool.LoadOrNew(r.transportKey, func() (caddy.Destructor, error) {
-		t, err := mercure.NewRedisTransport(ctx.Logger(), r.Address, r.Username, r.Password, r.SubscribersSize, r.SubscribersBroadcastParallel)
+		t, err := mercure.NewRedisTransport(ctx.Logger(), r.address, r.username, r.password, r.subscribersSize, r.dispatcherPoolSize, r.redisChannel)
 		if err != nil {
 			return nil, err
 		}
@@ -66,6 +69,7 @@ func (r *Redis) Cleanup() error {
 	return err
 }
 
+// UnmarshalCaddyfile sets up the handler from Caddyfile tokens.
 func (r *Redis) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	replacer := caddy.NewReplacer()
 	for d.Next() {
@@ -76,21 +80,21 @@ func (r *Redis) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 					return d.ArgErr()
 				}
 
-				r.Address = replacer.ReplaceKnown(d.Val(), "")
+				r.address = replacer.ReplaceKnown(d.Val(), "")
 
 			case "username":
 				if !d.NextArg() {
 					return d.ArgErr()
 				}
 
-				r.Username = replacer.ReplaceKnown(d.Val(), "")
+				r.username = replacer.ReplaceKnown(d.Val(), "")
 
 			case "password":
 				if !d.NextArg() {
 					return d.ArgErr()
 				}
 
-				r.Password = replacer.ReplaceKnown(d.Val(), "")
+				r.password = replacer.ReplaceKnown(d.Val(), "")
 
 			case "subscribers_size":
 				if !d.NextArg() {
@@ -102,9 +106,9 @@ func (r *Redis) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 					return e
 				}
 
-				r.SubscribersSize = s
+				r.subscribersSize = s
 
-			case "subscribers_broadcast_parallel":
+			case "dispatcher_pool_size":
 				if !d.NextArg() {
 					return d.ArgErr()
 				}
@@ -114,7 +118,14 @@ func (r *Redis) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 					return e
 				}
 
-				r.SubscribersBroadcastParallel = s
+				r.dispatcherPoolSize = s
+
+			case "redis_channel":
+				if !d.NextArg() {
+					return d.ArgErr()
+				}
+
+				r.redisChannel = replacer.ReplaceKnown(d.Val(), "")
 			}
 		}
 	}

@@ -44,10 +44,6 @@ spec:
           {{- end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            {{- if .Values.gomaxprocs}}
-            - name: GOMAXPROCS
-              value: "{{ .Values.gomaxprocs }}"
-            {{- end }}
             {{- if .Values.redis.address }}
             - name: MERCURE_REDIS_ADDRESS
               value: "{{ .Values.redis.address }}"
@@ -60,9 +56,13 @@ spec:
             - name: MERCURE_REDIS_SUBSCRIBERS_SIZE
               value: "{{ .Values.redis.subscribers_size }}"
             {{- end }}
-            {{- if .Values.redis.subscribers_broadcast_parallel }}
-            - name: MERCURE_REDIS_SUBSCRIBERS_BROADCAST_PARALLEL
-              value: "{{ .Values.redis.subscribers_broadcast_parallel }}"
+            {{- if .Values.redis.dispatcher_pool_size }}
+            - name: MERCURE_REDIS_DISPATCHER_POOL_SIZE
+              value: "{{ .Values.redis.dispatcher_pool_size }}"
+            {{- end }}
+            {{- if .Values.redis.redis_channel }}
+            - name: MERCURE_REDIS_CHANNEL
+              value: "{{ .Values.redis.redis_channel }}"
             {{- end }}
             - name: SERVER_NAME
               value: :{{ .Values.service.targetPort }}

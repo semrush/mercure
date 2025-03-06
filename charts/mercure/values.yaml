@@ -223,7 +223,8 @@ redis:
   password: ~
   dispatch_timer: ~
   subscribers_size: ~
-  subscribers_broadcast_parallel: ~
+  dispatcher_pool_size: ~
+  redis_channel: mercure
 
 customLabels: ~
 
@@ -233,5 +234,3 @@ deployment:
   annotations: ~
 
 networkPolicy: ~
-
-gomaxprocs: 1

@@ -37,7 +37,8 @@
       username {env.MERCURE_REDIS_USERNAME}
       password {env.MERCURE_REDIS_PASSWORD}
       subscribers_size {env.MERCURE_REDIS_SUBSCRIBERS_SIZE}
-      subscribers_broadcast_parallel {env.MERCURE_REDIS_SUBSCRIBERS_BROADCAST_PARALLEL}
+      dispatcher_pool_size {env.MERCURE_REDIS_DISPATCHER_POOL_SIZE}
+      redis_channel {env.MERCURE_REDIS_CHANNEL}
     }
 	}
 

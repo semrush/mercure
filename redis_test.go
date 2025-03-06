@@ -11,13 +11,14 @@ import (
 )
 
 const (
-	redisHost                        = "localhost:6379"
-	redisSubscriberSize              = 100000
-	redisSubscriberBroadcastParallel = 16
+	redisHost             = "localhost:6379"
+	redisSubscriberSize   = 100000
+	redisDispatchPoolSize = 16
+	redisChannel          = "channel"
 )
 
 func initialize() *RedisTransport {
-	transport, _ := NewRedisTransport(zap.NewNop(), redisHost, "", "", redisSubscriberSize, redisSubscriberBroadcastParallel)
+	transport, _ := NewRedisTransport(zap.NewNop(), redisHost, "", "", redisSubscriberSize, redisDispatchPoolSize, redisChannel)
 
 	return transport
 }
