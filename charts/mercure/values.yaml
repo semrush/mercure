@@ -74,7 +74,7 @@ replicaCount: 1
 
 image:
   # -- Name of the image repository to pull the container image from.
-  repository: semrush/mercure
+  repository: dunglas/mercure
   # -- [Image pull policy](https://kubernetes.io/docs/concepts/containers/images/#updating-images) for updating already existing images on a node.
   pullPolicy: IfNotPresent
   # -- Overrides the image tag whose default is the chart appVersion.
