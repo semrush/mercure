@@ -2,6 +2,7 @@ package mercure
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sync"
 
@@ -29,7 +30,6 @@ type RedisTransport struct {
 	publishScript      *redis.Script
 	closedOnce         sync.Once
 	redisChannel       string
-	redisSubscriber    *redis.PubSub
 	redisSubscriberCtx context.Context
 }
 
@@ -80,7 +80,6 @@ func NewRedisTransportInstance(
 		redisChannel:       redisChannel,
 		closed:             make(chan any),
 		dispatcher:         make(chan SubscriberPayload),
-		redisSubscriber:    subscriber,
 		redisSubscriberCtx: subscribeCtx,
 	}
 
@@ -88,6 +87,9 @@ func NewRedisTransportInstance(
 		defer subscribeCancel()
 		select {
 		case <-transport.closed:
+			if err := subscriber.Close(); err != redis.ErrClosed {
+				logger.Error(err.Error())
+			}
 		case <-subscribeCtx.Done():
 		}
 	}()
@@ -190,7 +192,6 @@ func (t *RedisTransport) Close() (err error) {
 		})
 		close(t.closed)
 		<-t.redisSubscriberCtx.Done()
-		t.redisSubscriber.Close()
 		err = t.client.Close()
 		if err != nil {
 			t.logger.Error(fmt.Errorf("unable to close: %w", err).Error())
@@ -204,11 +205,9 @@ func (t *RedisTransport) subscribe(ctx context.Context, subscriber *redis.PubSub
 	for {
 		message, err := subscriber.ReceiveMessage(ctx)
 		if err != nil {
-			if ctx.Err() == context.Canceled {
+			if errors.Is(ctx.Err(), context.Canceled) || errors.Is(ctx.Err(), redis.ErrClosed) {
 				return
 			}
-
-			fmt.Printf(err.Error())
 
 			t.logger.Error(err.Error())
 
