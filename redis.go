@@ -89,7 +89,7 @@ func NewRedisTransportInstance(
 		defer subscribeCancel()
 		select {
 		case <-transport.closing:
-			if err := subscriber.Close(); err != nil && err != redis.ErrClosed {
+			if err := subscriber.Close(); err != nil && !errors.Is(err, redis.ErrClosed) {
 				logger.Error(err.Error())
 			}
 		case <-transport.closed:
