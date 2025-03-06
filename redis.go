@@ -235,7 +235,7 @@ func (t *RedisTransport) dispatch(wg *sync.WaitGroup) {
 	for {
 		select {
 		case message := <-t.dispatcher:
-			message.subscriber.Dispatch(&message.payload, true)
+			message.subscriber.Dispatch(&message.payload, false)
 		case <-t.closed:
 
 			return
