@@ -205,7 +205,7 @@ func (t *RedisTransport) subscribe(ctx context.Context, subscriber *redis.PubSub
 	for {
 		message, err := subscriber.ReceiveMessage(ctx)
 		if err != nil {
-			if errors.Is(ctx.Err(), context.Canceled) || errors.Is(ctx.Err(), redis.ErrClosed) {
+			if errors.Is(ctx.Err(), context.Canceled) || errors.Is(err, redis.ErrClosed) {
 				return
 			}
 
