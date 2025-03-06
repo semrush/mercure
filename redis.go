@@ -203,6 +203,7 @@ func (t *RedisTransport) subscribe(ctx context.Context, cancel context.CancelFun
 		if err != nil {
 			if errors.Is(err, redis.ErrClosed) {
 				cancel()
+
 				return
 			}
 
