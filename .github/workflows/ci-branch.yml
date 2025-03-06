@@ -86,7 +86,6 @@ jobs:
             caddy/go.sum
 
       - name: Use go-deadlock
-        if: matrix.go != '1.23'
         run: ./tests/use-go-deadlock.sh
 
       - uses: shogo82148/actions-setup-redis@v1
