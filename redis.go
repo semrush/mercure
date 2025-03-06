@@ -26,12 +26,10 @@ type RedisTransport struct {
 	subscribers        *SubscriberList
 	dispatcherPoolSize int
 	dispatcher         chan SubscriberPayload
-	closing            chan any
 	closed             chan any
 	publishScript      *redis.Script
 	closedOnce         sync.Once
 	redisChannel       string
-	redisSubscriberCtx context.Context
 }
 
 type SubscriberPayload struct {
@@ -78,25 +76,25 @@ func NewRedisTransportInstance(
 		subscribers:        NewSubscriberList(subscribersSize),
 		dispatcherPoolSize: dispatcherPoolSize,
 		publishScript:      redis.NewScript(publishScript),
-		redisChannel:       redisChannel,
-		closed:             make(chan any),
-		closing:            make(chan any),
 		dispatcher:         make(chan SubscriberPayload),
-		redisSubscriberCtx: subscribeCtx,
+		closed:             make(chan any),
+		redisChannel:       redisChannel,
 	}
 
 	go func() {
-		defer subscribeCancel()
 		select {
-		case <-transport.closing:
+		case <-transport.closed:
 			if err := subscriber.Close(); err != nil && !errors.Is(err, redis.ErrClosed) {
 				logger.Error(err.Error())
 			}
-		case <-transport.closed:
+			<-subscribeCtx.Done()
+			if err := client.Close(); err != nil && !errors.Is(err, redis.ErrClosed) {
+				logger.Error(err.Error())
+			}
 		case <-subscribeCtx.Done():
 		}
 	}()
-	go transport.subscribe(subscribeCtx, subscriber)
+	go transport.subscribe(subscribeCtx, subscribeCancel, subscriber)
 
 	wg := sync.WaitGroup{}
 	wg.Add(dispatcherPoolSize)
@@ -193,23 +191,18 @@ func (t *RedisTransport) Close() (err error) {
 
 			return true
 		})
-		close(t.closing)
-		<-t.redisSubscriberCtx.Done()
-		err = t.client.Close()
-		if err != nil {
-			t.logger.Error(fmt.Errorf("unable to close: %w", err).Error())
-		}
 		close(t.closed)
 	})
 
 	return nil
 }
 
-func (t *RedisTransport) subscribe(ctx context.Context, subscriber *redis.PubSub) {
+func (t *RedisTransport) subscribe(ctx context.Context, cancel context.CancelFunc, subscriber *redis.PubSub) {
 	for {
 		message, err := subscriber.ReceiveMessage(ctx)
 		if err != nil {
-			if errors.Is(ctx.Err(), context.Canceled) || errors.Is(err, redis.ErrClosed) {
+			if errors.Is(err, redis.ErrClosed) {
+				cancel()
 				return
 			}
 
