@@ -12,17 +12,18 @@ retract (
 replace github.com/dunglas/mercure => ../
 
 require (
-	github.com/KimMachineGun/automemlimit v0.7.1
+	github.com/KimMachineGun/automemlimit v0.7.0
 	github.com/MicahParks/keyfunc/v3 v3.3.10
 	github.com/caddyserver/caddy/v2 v2.9.1
 	github.com/dunglas/mercure v0.18.4
 	github.com/stretchr/testify v1.10.0
+	go.uber.org/automaxprocs v1.6.0
 	go.uber.org/zap v1.27.0
 	go.uber.org/zap/exp v0.3.0
 )
 
 require (
-	cel.dev/expr v0.19.2 // indirect
+	cel.dev/expr v0.20.0 // indirect
 	dario.cat/mergo v1.0.1 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/AndreasBriese/bbloom v0.0.0-20190825152654-46b345b51c96 // indirect
@@ -70,11 +71,11 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
-	github.com/google/cel-go v0.23.0 // indirect
+	github.com/google/cel-go v0.23.2 // indirect
 	github.com/google/certificate-transparency-go v1.2.2 // indirect
 	github.com/google/go-tpm v0.9.3 // indirect
 	github.com/google/go-tspi v0.3.0 // indirect
-	github.com/google/pprof v0.0.0-20250125003558-7fdb3d7e6fa0 // indirect
+	github.com/google/pprof v0.0.0-20250208200701-d0013a598941 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/handlers v1.5.2 // indirect
 	github.com/gorilla/mux v1.8.1 // indirect
@@ -90,7 +91,7 @@ require (
 	github.com/kevburnsjr/skipfilter v0.0.1 // indirect
 	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.9 // indirect
-	github.com/libdns/libdns v0.2.2 // indirect
+	github.com/libdns/libdns v0.2.3 // indirect
 	github.com/magiconair/properties v1.8.9 // indirect
 	github.com/manifoldco/promptui v0.9.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
@@ -116,7 +117,7 @@ require (
 	github.com/prometheus/procfs v0.15.1 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
 	github.com/quic-go/quic-go v0.49.0 // indirect
-	github.com/redis/go-redis/v9 v9.7.0 // indirect
+	github.com/redis/go-redis/v9 v9.7.1 // indirect
 	github.com/rs/xid v1.6.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sagikazarmark/locafero v0.7.0 // indirect
@@ -129,7 +130,7 @@ require (
 	github.com/smallstep/cli-utils v0.10.0 // indirect
 	github.com/smallstep/go-attestation v0.4.4-0.20240109183208-413678f90935 // indirect
 	github.com/smallstep/nosql v0.7.0 // indirect
-	github.com/smallstep/pkcs7 v0.1.1 // indirect
+	github.com/smallstep/pkcs7 v0.2.1 // indirect
 	github.com/smallstep/scep v0.0.0-20241223071629-a37a330173bc // indirect
 	github.com/smallstep/truststore v0.13.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
@@ -148,7 +149,7 @@ require (
 	github.com/yuin/goldmark v1.7.8 // indirect
 	github.com/yuin/goldmark-highlighting/v2 v2.0.0-20230729083705-37449abec8cc // indirect
 	github.com/zeebo/blake3 v0.2.4 // indirect
-	go.etcd.io/bbolt v1.3.11 // indirect
+	go.etcd.io/bbolt v1.4.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.57.0 // indirect
 	go.opentelemetry.io/contrib/propagators/autoprop v0.57.0 // indirect
 	go.opentelemetry.io/contrib/propagators/aws v1.32.0 // indirect
@@ -162,27 +163,26 @@ require (
 	go.opentelemetry.io/otel/sdk v1.32.0 // indirect
 	go.opentelemetry.io/otel/trace v1.32.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.3.1 // indirect
-	go.step.sm/crypto v0.57.0 // indirect
+	go.step.sm/crypto v0.57.1 // indirect
 	go.step.sm/linkedca v0.22.2 // indirect
-	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.uber.org/mock v0.5.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.32.0 // indirect
-	golang.org/x/crypto/x509roots/fallback v0.0.0-20250118192723-a8ea4be81f07 // indirect
-	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
-	golang.org/x/mod v0.22.0 // indirect
-	golang.org/x/net v0.34.0 // indirect
-	golang.org/x/oauth2 v0.25.0 // indirect
-	golang.org/x/sync v0.10.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
-	golang.org/x/term v0.28.0 // indirect
-	golang.org/x/text v0.21.0 // indirect
-	golang.org/x/time v0.9.0 // indirect
-	golang.org/x/tools v0.29.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20250127172529-29210b9bc287 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20250127172529-29210b9bc287 // indirect
+	golang.org/x/crypto v0.33.0 // indirect
+	golang.org/x/crypto/x509roots/fallback v0.0.0-20250214233241-911360c8a4f4 // indirect
+	golang.org/x/exp v0.0.0-20250215185904-eff6e970281f // indirect
+	golang.org/x/mod v0.23.0 // indirect
+	golang.org/x/net v0.35.0 // indirect
+	golang.org/x/oauth2 v0.26.0 // indirect
+	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/term v0.29.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
+	golang.org/x/time v0.10.0 // indirect
+	golang.org/x/tools v0.30.0 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20250212204824-5a70512c5d8b // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250212204824-5a70512c5d8b // indirect
 	google.golang.org/grpc v1.70.0 // indirect
-	google.golang.org/protobuf v1.36.4 // indirect
+	google.golang.org/protobuf v1.36.5 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
