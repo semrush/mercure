@@ -40,5 +40,5 @@ Sponsored by [Les-Tilleuls.coop](https://les-tilleuls.coop).
 
 ## Fork Additions
 
-This fork includes a significant enhancement to Mercure availability (HA) capabilities. **Redis Pub/Sub Support**: We have now integrated Redis pub/sub messaging, allowing for seamless activation of HA functionality.
+This fork includes a significant enhancement to Mercure availability (HA) capabilities. **Redis Pub/Sub Support**: We have now integrated Redis Pub/Sub messaging, allowing for seamless activation of HA functionality.
 This addition enables real-time communication between nodes, ensuring uninterrupted service and improved scalability.
