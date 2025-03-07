@@ -99,8 +99,10 @@ func NewRedisTransportInstance(
 	wg := sync.WaitGroup{}
 	wg.Add(dispatcherPoolSize)
 	for range dispatcherPoolSize {
-		defer wg.Done()
-		transport.dispatch()
+		go func() {
+			defer wg.Done()
+			transport.dispatch()
+		}()
 	}
 	go func() {
 		wg.Wait()
