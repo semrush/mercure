@@ -99,7 +99,8 @@ func NewRedisTransportInstance(
 	wg := sync.WaitGroup{}
 	wg.Add(dispatcherPoolSize)
 	for range dispatcherPoolSize {
-		go transport.dispatch(&wg)
+		defer wg.Done()
+		transport.dispatch()
 	}
 	go func() {
 		wg.Wait()
@@ -228,8 +229,7 @@ func (t *RedisTransport) subscribe(ctx context.Context, cancel context.CancelFun
 	}
 }
 
-func (t *RedisTransport) dispatch(wg *sync.WaitGroup) {
-	defer wg.Done()
+func (t *RedisTransport) dispatch() {
 	for {
 		select {
 		case message := <-t.dispatcher:
