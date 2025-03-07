@@ -218,8 +218,8 @@ func (t *RedisTransport) subscribe(ctx context.Context, cancel context.CancelFun
 
 			continue
 		}
-		topics := []string{}
-		topics = append(topics, update.Topics...)
+		topics := make([]string, len(update.Topics))
+		copy(topics, update.Topics)
 		t.Lock()
 		for _, subscriber := range t.subscribers.MatchAny(&update) {
 			update.Topics = topics
