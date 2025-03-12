@@ -15,12 +15,12 @@ func init() {
 }
 
 type Redis struct {
-	address            string
-	username           string
-	password           string
-	subscribersSize    int
-	dispatcherPoolSize int
-	redisChannel       string
+	Address            string `json:"address,omitempty"`
+	Username           string `json:"username,omitempty"`
+	Password           string `json:"password,omitempty"`
+	SubscribersSize    int    `json:"subscribers_size,omitempty"`
+	DispatcherPoolSize int    `json:"dispatcher_pool_size,omitempty"`
+	RedisChannel       string `json:"redis_channel,omitempty"`
 
 	transport    *mercure.RedisTransport
 	transportKey string
@@ -47,7 +47,7 @@ func (r *Redis) Provision(ctx caddy.Context) error {
 	r.transportKey = key.String()
 
 	destructor, _, err := TransportUsagePool.LoadOrNew(r.transportKey, func() (caddy.Destructor, error) {
-		t, err := mercure.NewRedisTransport(ctx.Logger(), r.address, r.username, r.password, r.subscribersSize, r.dispatcherPoolSize, r.redisChannel)
+		t, err := mercure.NewRedisTransport(ctx.Logger(), r.Address, r.Username, r.Password, r.SubscribersSize, r.DispatcherPoolSize, r.RedisChannel)
 		if err != nil {
 			return nil, err
 		}
@@ -80,21 +80,21 @@ func (r *Redis) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 					return d.ArgErr()
 				}
 
-				r.address = replacer.ReplaceKnown(d.Val(), "")
+				r.Address = replacer.ReplaceKnown(d.Val(), "")
 
 			case "username":
 				if !d.NextArg() {
 					return d.ArgErr()
 				}
 
-				r.username = replacer.ReplaceKnown(d.Val(), "")
+				r.Username = replacer.ReplaceKnown(d.Val(), "")
 
 			case "password":
 				if !d.NextArg() {
 					return d.ArgErr()
 				}
 
-				r.password = replacer.ReplaceKnown(d.Val(), "")
+				r.Password = replacer.ReplaceKnown(d.Val(), "")
 
 			case "subscribers_size":
 				if !d.NextArg() {
@@ -106,7 +106,7 @@ func (r *Redis) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 					return e
 				}
 
-				r.subscribersSize = s
+				r.SubscribersSize = s
 
 			case "dispatcher_pool_size":
 				if !d.NextArg() {
@@ -118,14 +118,14 @@ func (r *Redis) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 					return e
 				}
 
-				r.dispatcherPoolSize = s
+				r.DispatcherPoolSize = s
 
 			case "redis_channel":
 				if !d.NextArg() {
 					return d.ArgErr()
 				}
 
-				r.redisChannel = replacer.ReplaceKnown(d.Val(), "")
+				r.RedisChannel = replacer.ReplaceKnown(d.Val(), "")
 			}
 		}
 	}
