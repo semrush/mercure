@@ -25,16 +25,10 @@ type RedisTransport struct {
 	client             *redis.Client
 	subscribers        *SubscriberList
 	dispatcherPoolSize int
-	dispatcher         chan SubscriberPayload
 	closed             chan any
 	publishScript      *redis.Script
 	closedOnce         sync.Once
 	redisChannel       string
-}
-
-type SubscriberPayload struct {
-	subscriber *LocalSubscriber
-	payload    Update
 }
 
 func NewRedisTransport(
@@ -76,7 +70,6 @@ func NewRedisTransportInstance(
 		subscribers:        NewSubscriberList(subscribersSize),
 		dispatcherPoolSize: dispatcherPoolSize,
 		publishScript:      redis.NewScript(publishScript),
-		dispatcher:         make(chan SubscriberPayload),
 		closed:             make(chan any),
 		redisChannel:       redisChannel,
 	}
@@ -101,19 +94,6 @@ func NewRedisTransportInstance(
 	go func() {
 		defer wg.Done()
 		transport.subscribe(subscribeCtx, subscribeCancel, subscriber)
-	}()
-
-	wg.Add(dispatcherPoolSize)
-	for range dispatcherPoolSize {
-		go func() {
-			defer wg.Done()
-			transport.dispatch()
-		}()
-	}
-
-	go func() {
-		wg.Wait()
-		close(transport.dispatcher)
 	}()
 
 	return transport, nil
@@ -232,21 +212,9 @@ func (t *RedisTransport) subscribe(ctx context.Context, cancel context.CancelFun
 		t.Lock()
 		for _, subscriber := range t.subscribers.MatchAny(&update) {
 			update.Topics = topics
-			t.dispatcher <- SubscriberPayload{subscriber, update}
+			subscriber.Dispatch(&update, false)
 		}
 		t.Unlock()
-	}
-}
-
-func (t *RedisTransport) dispatch() {
-	for {
-		select {
-		case message := <-t.dispatcher:
-			message.subscriber.Dispatch(&message.payload, false)
-		case <-t.closed:
-
-			return
-		}
 	}
 }
 
