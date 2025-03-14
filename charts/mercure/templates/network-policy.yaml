@@ -1,5 +1,6 @@
 ---
 {{- if .Values.networkPolicy }}
+---
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -14,6 +15,20 @@ spec:
     {{- toYaml .Values.networkPolicy.ingress | nindent 6 }}
   egress:
     {{- toYaml .Values.networkPolicy.egress | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "mercure.fullname" . }}-deny-all
+  labels:
+    {{- include "mercure.labels" . | nindent 4}}
+spec:
+  podSelector:
+    matchLabels:
+      {{- toYaml .Values.networkPolicy.podSelectorLabels | nindent 8 }}
   policyTypes:
     - Ingress
     - Egress
