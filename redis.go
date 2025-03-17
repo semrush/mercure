@@ -134,9 +134,14 @@ func (t *RedisTransport) AddSubscriber(s *LocalSubscriber) error {
 		return ErrClosedTransport
 	default:
 	}
+
 	t.Lock()
 	t.subscribers.Add(s)
 	t.Unlock()
+
+	if s.RequestLastEventID != "" {
+		s.HistoryDispatched(EarliestLastEventID)
+	}
 
 	s.Ready()
 
