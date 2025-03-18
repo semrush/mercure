@@ -139,12 +139,13 @@ func (t *RedisTransport) AddSubscriber(s *LocalSubscriber) error {
 	t.subscribers.Add(s)
 	t.Unlock()
 
-	lastEventID, err := t.client.Get(context.Background(), lastEventIDKey).Result()
-	if err != nil {
-		return fmt.Errorf("redis failed to get last event id: %w", err)
-	}
-
 	if s.RequestLastEventID != "" {
+		lastEventID, err := t.client.Get(context.Background(), lastEventIDKey).Result()
+		if err != nil {
+
+			return fmt.Errorf("redis failed to get last event id: %w", err)
+		}
+
 		if lastEventID == "" {
 			lastEventID = EarliestLastEventID
 		}
