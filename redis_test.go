@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	redisHost             = "localhost:6379"
-	redisSubscriberSize   = 100000
-	redisChannel          = "channel"
+	redisHost           = "localhost:6379"
+	redisSubscriberSize = 100000
+	redisChannel        = "channel"
 )
 
 func initialize() *RedisTransport {

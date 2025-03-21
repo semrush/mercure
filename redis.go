@@ -21,13 +21,13 @@ const (
 
 type RedisTransport struct {
 	sync.RWMutex
-	logger             Logger
-	client             *redis.Client
-	subscribers        *SubscriberList
-	closed             chan any
-	publishScript      *redis.Script
-	closedOnce         sync.Once
-	redisChannel       string
+	logger        Logger
+	client        *redis.Client
+	subscribers   *SubscriberList
+	closed        chan any
+	publishScript *redis.Script
+	closedOnce    sync.Once
+	redisChannel  string
 }
 
 func NewRedisTransport(
@@ -62,12 +62,12 @@ func NewRedisTransportInstance(
 	subscribeCtx, subscribeCancel := context.WithCancel(context.Background())
 
 	transport := &RedisTransport{
-		logger:             logger,
-		client:             client,
-		subscribers:        NewSubscriberList(subscribersSize),
-		publishScript:      redis.NewScript(publishScript),
-		closed:             make(chan any),
-		redisChannel:       redisChannel,
+		logger:        logger,
+		client:        client,
+		subscribers:   NewSubscriberList(subscribersSize),
+		publishScript: redis.NewScript(publishScript),
+		closed:        make(chan any),
+		redisChannel:  redisChannel,
 	}
 
 	go func() {
