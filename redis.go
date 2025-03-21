@@ -24,7 +24,6 @@ type RedisTransport struct {
 	logger             Logger
 	client             *redis.Client
 	subscribers        *SubscriberList
-	dispatcherPoolSize int
 	closed             chan any
 	publishScript      *redis.Script
 	closedOnce         sync.Once
@@ -37,7 +36,6 @@ func NewRedisTransport(
 	username string,
 	password string,
 	subscribersSize int,
-	dispatcherPoolSize int,
 	redisChannel string,
 ) (*RedisTransport, error) {
 	client := redis.NewClient(&redis.Options{
@@ -50,14 +48,13 @@ func NewRedisTransport(
 		return nil, fmt.Errorf("failed to connect to Redis: %w", pong.Err())
 	}
 
-	return NewRedisTransportInstance(logger, client, subscribersSize, dispatcherPoolSize, redisChannel)
+	return NewRedisTransportInstance(logger, client, subscribersSize, redisChannel)
 }
 
 func NewRedisTransportInstance(
 	logger Logger,
 	client *redis.Client,
 	subscribersSize int,
-	dispatcherPoolSize int,
 	redisChannel string,
 ) (*RedisTransport, error) {
 	subscriber := client.PSubscribe(context.Background(), redisChannel)
@@ -68,7 +65,6 @@ func NewRedisTransportInstance(
 		logger:             logger,
 		client:             client,
 		subscribers:        NewSubscriberList(subscribersSize),
-		dispatcherPoolSize: dispatcherPoolSize,
 		publishScript:      redis.NewScript(publishScript),
 		closed:             make(chan any),
 		redisChannel:       redisChannel,
