@@ -21,20 +21,13 @@ const (
 
 type RedisTransport struct {
 	sync.RWMutex
-	logger             Logger
-	client             *redis.Client
-	subscribers        *SubscriberList
-	dispatcherPoolSize int
-	dispatcher         chan SubscriberPayload
-	closed             chan any
-	publishScript      *redis.Script
-	closedOnce         sync.Once
-	redisChannel       string
-}
-
-type SubscriberPayload struct {
-	subscriber *LocalSubscriber
-	payload    Update
+	logger        Logger
+	client        *redis.Client
+	subscribers   *SubscriberList
+	closed        chan any
+	publishScript *redis.Script
+	closedOnce    sync.Once
+	redisChannel  string
 }
 
 func NewRedisTransport(
@@ -43,7 +36,6 @@ func NewRedisTransport(
 	username string,
 	password string,
 	subscribersSize int,
-	dispatcherPoolSize int,
 	redisChannel string,
 ) (*RedisTransport, error) {
 	client := redis.NewClient(&redis.Options{
@@ -56,14 +48,13 @@ func NewRedisTransport(
 		return nil, fmt.Errorf("failed to connect to Redis: %w", pong.Err())
 	}
 
-	return NewRedisTransportInstance(logger, client, subscribersSize, dispatcherPoolSize, redisChannel)
+	return NewRedisTransportInstance(logger, client, subscribersSize, redisChannel)
 }
 
 func NewRedisTransportInstance(
 	logger Logger,
 	client *redis.Client,
 	subscribersSize int,
-	dispatcherPoolSize int,
 	redisChannel string,
 ) (*RedisTransport, error) {
 	subscriber := client.PSubscribe(context.Background(), redisChannel)
@@ -71,14 +62,12 @@ func NewRedisTransportInstance(
 	subscribeCtx, subscribeCancel := context.WithCancel(context.Background())
 
 	transport := &RedisTransport{
-		logger:             logger,
-		client:             client,
-		subscribers:        NewSubscriberList(subscribersSize),
-		dispatcherPoolSize: dispatcherPoolSize,
-		publishScript:      redis.NewScript(publishScript),
-		dispatcher:         make(chan SubscriberPayload),
-		closed:             make(chan any),
-		redisChannel:       redisChannel,
+		logger:        logger,
+		client:        client,
+		subscribers:   NewSubscriberList(subscribersSize),
+		publishScript: redis.NewScript(publishScript),
+		closed:        make(chan any),
+		redisChannel:  redisChannel,
 	}
 
 	go func() {
@@ -101,19 +90,6 @@ func NewRedisTransportInstance(
 	go func() {
 		defer wg.Done()
 		transport.subscribe(subscribeCtx, subscribeCancel, subscriber)
-	}()
-
-	wg.Add(dispatcherPoolSize)
-	for range dispatcherPoolSize {
-		go func() {
-			defer wg.Done()
-			transport.dispatch()
-		}()
-	}
-
-	go func() {
-		wg.Wait()
-		close(transport.dispatcher)
 	}()
 
 	return transport, nil
@@ -154,10 +130,13 @@ func (t *RedisTransport) AddSubscriber(s *LocalSubscriber) error {
 		return ErrClosedTransport
 	default:
 	}
+
 	t.Lock()
 	t.subscribers.Add(s)
 	t.Unlock()
-
+	if s.RequestLastEventID != "" {
+		s.HistoryDispatched(EarliestLastEventID)
+	}
 	s.Ready()
 
 	return nil
@@ -232,21 +211,9 @@ func (t *RedisTransport) subscribe(ctx context.Context, cancel context.CancelFun
 		t.Lock()
 		for _, subscriber := range t.subscribers.MatchAny(&update) {
 			update.Topics = topics
-			t.dispatcher <- SubscriberPayload{subscriber, update}
+			subscriber.Dispatch(&update, false)
 		}
 		t.Unlock()
-	}
-}
-
-func (t *RedisTransport) dispatch() {
-	for {
-		select {
-		case message := <-t.dispatcher:
-			message.subscriber.Dispatch(&message.payload, false)
-		case <-t.closed:
-
-			return
-		}
 	}
 }
 

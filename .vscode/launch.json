@@ -33,7 +33,6 @@
         "MERCURE_EXTRA_DIRECTIVES": "anonymous\nwrite_timeout 10s",
         "MERCURE_REDIS_ADDRESS": "localhost:6379",
         "MERCURE_REDIS_SUBSCRIBERS_SIZE": "10000",
-        "MERCURE_REDIS_DISPATCHER_POOL_SIZE": "16",
         "MERCURE_REDIS_CHANNEL": "mercure",
         "GLOBAL_OPTIONS": "debug",
         "SERVER_NAME": ":1234",

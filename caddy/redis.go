@@ -15,12 +15,11 @@ func init() {
 }
 
 type Redis struct {
-	Address            string `json:"address,omitempty"`
-	Username           string `json:"username,omitempty"`
-	Password           string `json:"password,omitempty"`
-	SubscribersSize    int    `json:"subscribers_size,omitempty"`
-	DispatcherPoolSize int    `json:"dispatcher_pool_size,omitempty"`
-	RedisChannel       string `json:"redis_channel,omitempty"`
+	Address         string `json:"address,omitempty"`
+	Username        string `json:"username,omitempty"`
+	Password        string `json:"password,omitempty"`
+	SubscribersSize int    `json:"subscribers_size,omitempty"`
+	RedisChannel    string `json:"redis_channel,omitempty"`
 
 	transport    *mercure.RedisTransport
 	transportKey string
@@ -47,7 +46,7 @@ func (r *Redis) Provision(ctx caddy.Context) error {
 	r.transportKey = key.String()
 
 	destructor, _, err := TransportUsagePool.LoadOrNew(r.transportKey, func() (caddy.Destructor, error) {
-		t, err := mercure.NewRedisTransport(ctx.Logger(), r.Address, r.Username, r.Password, r.SubscribersSize, r.DispatcherPoolSize, r.RedisChannel)
+		t, err := mercure.NewRedisTransport(ctx.Logger(), r.Address, r.Username, r.Password, r.SubscribersSize, r.RedisChannel)
 		if err != nil {
 			return nil, err
 		}
@@ -107,18 +106,6 @@ func (r *Redis) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 				}
 
 				r.SubscribersSize = s
-
-			case "dispatcher_pool_size":
-				if !d.NextArg() {
-					return d.ArgErr()
-				}
-
-				s, e := strconv.Atoi(replacer.ReplaceKnown(d.Val(), ""))
-				if e != nil {
-					return e
-				}
-
-				r.DispatcherPoolSize = s
 
 			case "redis_channel":
 				if !d.NextArg() {

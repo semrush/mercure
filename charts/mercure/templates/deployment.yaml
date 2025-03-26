@@ -56,10 +56,6 @@ spec:
             - name: MERCURE_REDIS_SUBSCRIBERS_SIZE
               value: "{{ .Values.redis.subscribers_size }}"
             {{- end }}
-            {{- if .Values.redis.dispatcher_pool_size }}
-            - name: MERCURE_REDIS_DISPATCHER_POOL_SIZE
-              value: "{{ .Values.redis.dispatcher_pool_size }}"
-            {{- end }}
             {{- if .Values.redis.redis_channel }}
             - name: MERCURE_REDIS_CHANNEL
               value: "{{ .Values.redis.redis_channel }}"

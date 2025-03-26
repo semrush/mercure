@@ -223,7 +223,6 @@ redis:
   password: ~
   dispatch_timer: ~
   subscribers_size: ~
-  dispatcher_pool_size: ~
   redis_channel: mercure
 
 customLabels: ~
