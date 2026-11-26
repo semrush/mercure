@@ -151,6 +151,46 @@ ingress:
   #    hosts:
   #      - mercure-example.local
 
+# -- Expose the service via gateway-api HTTPRoute
+# Requires Gateway API resources and suitable controller installed within the cluster
+# (see: https://gateway-api.sigs.k8s.io/guides/)
+httpRoute:
+  # -- HTTPRoute enabled.
+  enabled: false
+  # -- HTTPRoute annotations.
+  annotations: {}
+  # -- Which Gateways this Route is attached to.
+  parentRefs:
+    - name: gateway
+      sectionName: http
+      # namespace: default
+  # -- Hostnames matching HTTP header.
+  hostnames:
+    - mercure-example.local
+  # -- Name of the rule rendered when `rules` is empty.
+  defaultRuleName: mercure
+  # -- List of rules and filters applied. Every rule needs a `name`.
+  # When empty, a default rule routes all traffic with `timeouts.request: 0s`
+  # so long-lived SSE subscriptions aren't cut by the gateway (Envoy defaults to 15s).
+  # @default -- See [values.yaml](values.yaml).
+  rules: []
+  # rules:
+  #   - name: subscribe
+  #     matches:
+  #       - path:
+  #           type: PathPrefix
+  #           value: /.well-known/mercure
+  #         method: GET
+  #     timeouts:
+  #       request: 3600s
+  #   - name: mercure
+  #     matches:
+  #       - path:
+  #           type: PathPrefix
+  #           value: /
+  #     timeouts:
+  #       request: 60s
+
 # -- Container resource [requests and limits](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/).
 # See the [API reference](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#resources) for details.
 # @default -- No requests or limits.
