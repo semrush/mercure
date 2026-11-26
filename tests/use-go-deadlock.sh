@@ -8,7 +8,7 @@ if [[ "$(uname || true)" = "Darwin" ]]; then
 	args=("-i" "")
 fi
 
-go install golang.org/x/tools/cmd/goimports@latest
+go install golang.org/x/tools/cmd/goimports@v0.36.0 # last release that supports Go 1.23
 find . -name "*.go" -exec sed "${args[@]}" -e "s#\"sync\"#\"sync\"${SEP}deadlock \"github.com/sasha-s/go-deadlock\"#" {} \;
 find . -name "*.go" -exec sed "${args[@]}" -e 's#sync.RWMutex#deadlock.RWMutex#' {} {} \;
 find . -name "*.go" -exec sed "${args[@]}" -e 's#sync.Mutex#deadlock.Mutex#' {} {} \;
