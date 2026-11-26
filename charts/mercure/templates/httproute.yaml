@@ -1,0 +1,60 @@
+{{- /*
+HTTPRoute (Gateway API), backported from dunglas/mercure charts/mercure
+(#1122, #1223, #1268). Local addition: every rule carries a `name`, which
+policy engines such as Gatekeeper `routerulename` require and SLOs select by.
+Disabled by default; nil-safe when httpRoute is absent from values.
+*/ -}}
+{{- $httpRoute := .Values.httpRoute | default dict -}}
+{{- if $httpRoute.enabled -}}
+{{- $fullName := include "mercure.fullname" . -}}
+{{- $svcPort := .Values.service.port -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "mercure.labels" . | nindent 4 }}
+  {{- with $httpRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with $httpRoute.parentRefs }}
+  parentRefs:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with $httpRoute.hostnames }}
+  hostnames:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- if $httpRoute.rules }}
+    {{- range $httpRoute.rules }}
+    - name: {{ required "httpRoute.rules[].name is required" .name }}
+      backendRefs:
+        - name: {{ $fullName }}
+          port: {{ $svcPort }}
+          weight: 1
+      {{- with .matches }}
+      matches:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .filters }}
+      filters:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .timeouts }}
+      timeouts:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
+    {{- else }}
+    - name: {{ $httpRoute.defaultRuleName | default "mercure" }}
+      backendRefs:
+        - name: {{ $fullName }}
+          port: {{ $svcPort }}
+          weight: 1
+      timeouts:
+        request: 0s
+    {{- end }}
+{{- end }}
